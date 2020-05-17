@@ -10,14 +10,19 @@ Support for other types of sensors (and for events which are not all-day) may be
 
 ### Installation
 
-###
+### Configuration
 ```yaml
 calendar:
   - platform: entities_calendar
     calendars:
-      name: Bin Collection
-      entities:
-        - sensor.bin_collection_grey
-        - sensor.bin_collection_green
-        - sensor.bin_collection_garden
+      - name: My Entities
+        entities:
+          - sensor.my_entity1
+          - sensor.my_entity2
+          - sensor.my_entity3
+      - name: Other Entities
+        entities:
+          - sensor.other_entity1
+          - sensor.other_entity2
+          - sensor.other_entity3
 ```
