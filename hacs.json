@@ -1,0 +1,5 @@
+{
+	"name": "Entities Calendar",
+	"content_in_root": false,
+	"domains": ["calendar"]
+}
