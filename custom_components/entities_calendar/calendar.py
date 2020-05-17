@@ -62,14 +62,11 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 def _parse_date(date) -> datetime:
     """Parse the due date dict into a datetime object."""
     # Add time information to date only strings.
-    _LOGGER.error("Date String %s", date)
     if len(date) == 10:
         date += "T00:00:00"
-        _LOGGER.error("Date String (Added Time) %s", date)
     # If there is no timezone provided, use UTC.
     if not date.endswith("Z") and not "+" in date[11:] and not "-" in date[11:]:
         date += "Z"
-    _LOGGER.error("Final Date String %s", date)
     return dt.parse_datetime(date)
 
 
