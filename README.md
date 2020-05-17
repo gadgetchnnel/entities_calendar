@@ -11,6 +11,7 @@ Support for other types of sensors (and for events which are not all-day) may be
 ### Installation
 
 ###
+```yaml
 calendar:
   - platform: entities_calendar
     calendars:
@@ -19,3 +20,4 @@ calendar:
         - sensor.bin_collection_grey
         - sensor.bin_collection_green
         - sensor.bin_collection_garden
+```
