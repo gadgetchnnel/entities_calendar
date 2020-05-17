@@ -153,7 +153,7 @@ class EntitiesCalendarData:
             if state_object.attributes.get("device_class") == "timestamp":
                 start = _parse_date(state_object.state)
             else:
-                start = state_object.attributes.get("last_changed")
+                start = state_object.last_changed
 
             if start_date < start < end_date:
                 event = {
@@ -179,7 +179,7 @@ class EntitiesCalendarData:
             if state_object.attributes.get("device_class") == "timestamp":
                 start = _parse_date(state_object.state)
             else:
-                start = state_object.attributes.get("last_changed")
+                start = state_object.last_changed
             event = {
                 "uid": entity,
                 "summary": state_object.attributes.get("friendly_name"),
