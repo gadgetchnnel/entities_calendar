@@ -10,6 +10,10 @@ Support for other types of sensors (and for events which are not all-day) may be
 
 ### Installation
 
+## Via HACS
+
+Add this repository as a custom repository to HACS (type Integration)
+
 ### Configuration
 ```yaml
 calendar:
