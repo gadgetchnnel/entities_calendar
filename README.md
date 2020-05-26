@@ -8,25 +8,29 @@ Other entity types can be used, but these will create all-day events based on th
 Support for other types of sensors (and for events which are not all-day) may be added in future releases.
 
 
-### Installation
+## Installation
 
-## Via HACS
+### Via HACS
 
 Add this repository as a custom repository to HACS (type Integration)
 
 ### Configuration
+
 ```yaml
 calendar:
   - platform: entities_calendar
     calendars:
-      - name: My Entities
+      - name: Bin Collection
         entities:
-          - sensor.my_entity1
-          - sensor.my_entity2
-          - sensor.my_entity3
+          - entity: sensor.bin_collection_general
+            name: General Waste Collection
+          - entity: sensor.bin_collection_recycling
+            name: Recycling Collection
+          - entity: sensor.bin_collection_garden
+            name: Garden Waste Collection
       - name: Other Entities
         entities:
-          - sensor.other_entity1
-          - sensor.other_entity2
-          - sensor.other_entity3
+          - entity: sensor.other_entity1
+          - entity: sensor.other_entity2
+          - entity: sensor.other_entity3
 ```

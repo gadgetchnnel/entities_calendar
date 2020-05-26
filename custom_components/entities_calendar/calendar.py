@@ -14,6 +14,14 @@ _LOGGER = logging.getLogger(__name__)
 
 CONF_CALENDARS = "calendars"
 CONF_CALENDAR_ENTITIES = "entities"
+CONF_ENTITY = "entity"
+
+CALENDAR_ENTITY_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_ENTITY) : vol.All(vol.Lower, cv.string),
+        vol.Optional(CONF_NAME): cv.string
+    }
+)
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
@@ -25,7 +33,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
                         {
                             vol.Required(CONF_NAME): cv.string,
                             vol.Required(CONF_CALENDAR_ENTITIES): vol.All(
-                                cv.ensure_list, [vol.All(cv.string, vol.Lower)]
+                                cv.ensure_list, [CALENDAR_ENTITY_SCHEMA]
                             )
                         }
                     )
@@ -149,7 +157,7 @@ class EntitiesCalendarData:
         """Get all tasks in a specific time frame."""
         events = []
         for entity in self._entities:
-            state_object = hass.states.get(entity)
+            state_object = hass.states.get(entity["entity"])
             if state_object.attributes.get("device_class") == "timestamp":
                 start = _parse_date(state_object.state)
             else:
@@ -158,7 +166,7 @@ class EntitiesCalendarData:
             if start_date < start < end_date:
                 event = {
                     "uid": entity,
-                    "summary": state_object.attributes.get("friendly_name"),
+                    "summary": entity["name"] if entity["name"] is not None else state_object.attributes.get("friendly_name"),
                     "start": {
                     	"date": start.strftime('%Y-%m-%d'),
                     },
@@ -175,14 +183,14 @@ class EntitiesCalendarData:
         """Get the latest data."""
         events = []
         for entity in self._entities:
-            state_object = self._hass.states.get(entity)
+            state_object = self._hass.states.get(entity["entity"])
             if state_object.attributes.get("device_class") == "timestamp":
                 start = _parse_date(state_object.state)
             else:
                 start = state_object.last_changed
             event = {
                 "uid": entity,
-                "summary": state_object.attributes.get("friendly_name"),
+                "summary": entity["name"] if entity["name"] is not None else state_object.attributes.get("friendly_name"),
                 "start": {
                     	"date": start.strftime('%Y-%m-%d'),
                 },
