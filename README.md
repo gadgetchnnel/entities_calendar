@@ -12,7 +12,7 @@ Support for other types of sensors (and for events which are not all-day) may be
 
 ### Via HACS
 
-Add this repository as a custom repository to HACS (type Integration)
+Simply search for Entities Calendar in HACS
 
 ### Configuration
 
