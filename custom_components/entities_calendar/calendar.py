@@ -5,7 +5,13 @@ import logging
 import voluptuous as vol
 
 from homeassistant.components.calendar import PLATFORM_SCHEMA, CalendarEventDevice
-from homeassistant.const import CONF_ID, CONF_NAME, CONF_TOKEN
+from homeassistant.const import (
+    CONF_ID, 
+    CONF_NAME,
+    CONF_TOKEN,
+    STATE_UNKNOWN,
+    STATE_UNAVAILABLE,
+)
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.template import DATE_STR_FORMAT
 from homeassistant.util import Throttle, dt
@@ -159,6 +165,8 @@ class EntitiesCalendarData:
         for entity in self._entities:
             state_object = hass.states.get(entity["entity"])
             if state_object.attributes.get("device_class") == "timestamp":
+                if state_object.state == STATE_UNKNOWN or state_object.state == STATE_UNAVAILABLE:
+                    continue
                 start = _parse_date(state_object.state)
             else:
                 start = state_object.last_changed
@@ -185,6 +193,8 @@ class EntitiesCalendarData:
         for entity in self._entities:
             state_object = self._hass.states.get(entity["entity"])
             if state_object.attributes.get("device_class") == "timestamp":
+                if state_object.state == STATE_UNKNOWN or state_object.state == STATE_UNAVAILABLE:
+                    continue
                 start = _parse_date(state_object.state)
             else:
                 start = state_object.last_changed
