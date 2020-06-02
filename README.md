@@ -79,7 +79,7 @@ calendar:
             start_time:
               timestamp_attribute: start_time
             end_time:
-              timestamp_attribute: start_time
+              timestamp_attribute: end_time
           - entity: sensor.state_test
             name: State Test
             start_time:
