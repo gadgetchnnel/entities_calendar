@@ -22,10 +22,41 @@ CONF_CALENDARS = "calendars"
 CONF_CALENDAR_ENTITIES = "entities"
 CONF_ENTITY = "entity"
 
+CONF_START_TIME = "start_time"
+CONF_END_TIME = "end_time"
+CONF_TIMESTAMP_ATTRIBUTE = "timestamp_attribute"
+CONF_TIMESTAMP_IN_STATE = "timestamp_in_state"
+
+MSG_TIMESTAMP_CONFLICT = "Pass only one of timestamp_in_state or timestamp_attribute"
+
 CALENDAR_ENTITY_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_ENTITY) : vol.All(vol.Lower, cv.string),
-        vol.Optional(CONF_NAME): cv.string
+        vol.Optional(CONF_NAME): cv.string,
+        vol.Optional(CONF_START_TIME, default={}) : vol.Schema(
+            {
+                vol.Exclusive(
+                    CONF_TIMESTAMP_ATTRIBUTE,
+                    CONF_START_TIME,
+                    msg=MSG_TIMESTAMP_CONFLICT): cv.string,
+                vol.Exclusive(
+                    CONF_TIMESTAMP_IN_STATE,
+                    CONF_START_TIME,
+                    msg=MSG_TIMESTAMP_CONFLICT): cv.boolean
+            }
+        ),
+        vol.Optional(CONF_END_TIME, default={}) : vol.Schema(
+            {
+                vol.Exclusive(
+                    CONF_TIMESTAMP_ATTRIBUTE,
+                    CONF_END_TIME,
+                    msg=MSG_TIMESTAMP_CONFLICT): cv.string,
+                vol.Exclusive(
+                    CONF_TIMESTAMP_IN_STATE,
+                    CONF_END_TIME,
+                    msg=MSG_TIMESTAMP_CONFLICT): cv.boolean
+            }
+        )
     }
 )
 
@@ -83,6 +114,26 @@ def _parse_date(date) -> datetime:
         date += "Z"
     return dt.parse_datetime(date)
 
+def _get_date(options, state_object):
+    timestamp_in_state = options.get(CONF_TIMESTAMP_IN_STATE, None)
+    timestamp_attribute = options.get(CONF_TIMESTAMP_ATTRIBUTE, None)
+
+    if timestamp_in_state is None:
+        timestamp_in_state = (False if timestamp_attribute is not None else state_object.attributes.get("device_class") == "timestamp")
+
+    if timestamp_in_state:
+        if state_object.state == STATE_UNKNOWN or state_object.state == STATE_UNAVAILABLE:
+            return None
+        return _parse_date(state_object.state)
+    else:
+        if timestamp_attribute is None:
+            return state_object.last_changed
+        else:
+            attribute_value = state_object.attributes.get(timestamp_attribute)
+            if attribute_value is None or attribute_value == "":
+                return None
+            else:
+                return _parse_date(attribute_value)
 
 class EntitiesCalendarDevice(CalendarEventDevice):
     """A device for getting calendar events from entities."""
@@ -163,13 +214,12 @@ class EntitiesCalendarData:
         """Get all tasks in a specific time frame."""
         events = []
         for entity in self._entities:
-            state_object = hass.states.get(entity["entity"])
-            if state_object.attributes.get("device_class") == "timestamp":
-                if state_object.state == STATE_UNKNOWN or state_object.state == STATE_UNAVAILABLE:
-                    continue
-                start = _parse_date(state_object.state)
-            else:
-                start = state_object.last_changed
+            state_object = self._hass.states.get(entity[CONF_ENTITY])
+            start = _get_date(entity[CONF_START_TIME], state_object)
+            end = _get_date(entity[CONF_END_TIME], state_object)
+
+            if start is None:
+                continue
 
             if start_date < start < end_date:
                 event = {
@@ -179,7 +229,7 @@ class EntitiesCalendarData:
                     	"date": start.strftime('%Y-%m-%d'),
                     },
                     "end": {
-                    	"date": start.strftime('%Y-%m-%d'),
+                    	"date": end.strftime('%Y-%m-%d'),
                     },
                     "allDay": True,
                 }
@@ -191,13 +241,10 @@ class EntitiesCalendarData:
         """Get the latest data."""
         events = []
         for entity in self._entities:
-            state_object = self._hass.states.get(entity["entity"])
-            if state_object.attributes.get("device_class") == "timestamp":
-                if state_object.state == STATE_UNKNOWN or state_object.state == STATE_UNAVAILABLE:
-                    continue
-                start = _parse_date(state_object.state)
-            else:
-                start = state_object.last_changed
+            state_object = self._hass.states.get(entity[CONF_ENTITY])
+            start = _get_date(entity[CONF_START_TIME], state_object)
+            end = _get_date(entity[CONF_END_TIME], state_object)
+
             event = {
                 "uid": entity,
                 "summary": entity["name"] if entity["name"] is not None else state_object.attributes.get("friendly_name"),
@@ -205,7 +252,7 @@ class EntitiesCalendarData:
                     	"date": start.strftime('%Y-%m-%d'),
                 },
                 "end": {
-                    "date": start.strftime('%Y-%m-%d'),
+                    "date": end.strftime('%Y-%m-%d'),
                 },
                 "allDay": True,
             }
