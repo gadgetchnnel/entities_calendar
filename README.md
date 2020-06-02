@@ -45,6 +45,7 @@ This can be overridden by using the **start_time** and/or **end_time** options.
 ### Entity Configuration Options
 
 | Option | Description |
+|--------|-------------|
 | **entity (Required)** | The entity id of the entity |
 | **name (Optional)** | The name to use for the event (defaults to the friendly name of the entity) |
 | **start_time (Optional)** | A **time** object as defined below specifying how the start time is determined (defeaults to being determined based on device class) |
@@ -53,6 +54,7 @@ This can be overridden by using the **start_time** and/or **end_time** options.
 #### **time** object
 
 | Option | Description |
+|--------|-------------|
 | timestamp_in_state (Optional) | Setting this to **true** forces the state to be used for the start/end time event if the device class is not "timestamp" |
 | timestamp_attribute (Optional) | Setting this to the name of an attribute will use that for the time (even for "timestamp") entities |
 
