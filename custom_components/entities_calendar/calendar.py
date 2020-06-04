@@ -224,7 +224,7 @@ class EntitiesCalendarData:
             if start_date < start < end_date:
                 event = {
                     "uid": entity,
-                    "summary": entity["name"] if entity["name"] is not None else state_object.attributes.get("friendly_name"),
+                    "summary": entity.get(CONF_NAME, state_object.attributes.get("friendly_name")),
                     "start": {
                     	"date": start.strftime('%Y-%m-%d'),
                     },
@@ -244,10 +244,9 @@ class EntitiesCalendarData:
             state_object = self._hass.states.get(entity[CONF_ENTITY])
             start = _get_date(entity[CONF_START_TIME], state_object)
             end = _get_date(entity[CONF_END_TIME], state_object)
-
             event = {
                 "uid": entity,
-                "summary": entity["name"] if entity["name"] is not None else state_object.attributes.get("friendly_name"),
+                "summary": entity.get(CONF_NAME, state_object.attributes.get("friendly_name")),
                 "start": {
                     	"date": start.strftime('%Y-%m-%d'),
                 },
