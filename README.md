@@ -5,7 +5,19 @@ A custom component for Home Assistant to allow regular entities to be used as a 
 
 ### Via HACS
 
-Simply search for Entities Calendar in HACS
+Simply search for Entities Calendar in HACS.
+
+#### Testing pre-release features
+
+Some new features may be made available in beta versions. To use these you need to enable betas for this integration in HACS. This can be done by toggling on the "Show beta versions" option when installing. If you have already installed it and want to enable betas, do the following:
+
+- Open HACS
+- Find the Entities Calendar integration under the Integrations tab
+- Click the three dots menu button
+- Select Reinstall from the menu
+- Toggle on “Show beta versions”
+- Select the latest beta version
+- Click Install
 
 ### Basic Configuration
 
