@@ -1,5 +1,5 @@
 """Support for calendars based on entities."""
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 import logging
 
 import voluptuous as vol
@@ -26,6 +26,7 @@ CONF_START_TIME = "start_time"
 CONF_END_TIME = "end_time"
 CONF_TIMESTAMP_ATTRIBUTE = "timestamp_attribute"
 CONF_TIMESTAMP_IN_STATE = "timestamp_in_state"
+CONF_ALL_DAY = "all_day"
 
 MSG_TIMESTAMP_CONFLICT = "Pass only one of timestamp_in_state or timestamp_attribute"
 
@@ -56,7 +57,8 @@ CALENDAR_ENTITY_SCHEMA = vol.Schema(
                     CONF_END_TIME,
                     msg=MSG_TIMESTAMP_CONFLICT): cv.boolean
             }
-        )
+        ),
+        vol.Optional(CONF_ALL_DAY) : cv.boolean,  
     }
 )
 
@@ -216,22 +218,30 @@ class EntitiesCalendarData:
         for entity in self._entities:
             state_object = self._hass.states.get(entity[CONF_ENTITY])
             start = _get_date(entity[CONF_START_TIME], state_object)
-            end = _get_date(entity[CONF_END_TIME], state_object)
+
+            if start and not entity[CONF_END_TIME]:
+                # If there is a start time and no end time options are defined
+                # also use the start time as the end time
+                end = start
+            else:
+                end = _get_date(entity[CONF_END_TIME], state_object)
 
             if start is None:
                 continue
 
             if start_date < start < end_date:
+                allDay = entity.get(CONF_ALL_DAY)
+                if allDay is None:
+                    # If this entity is not specifically identified as all day
+                    # determine based on time being midnight
+                    allDay = start.time() == time(0)
+
                 event = {
                     "uid": entity,
                     "summary": entity.get(CONF_NAME, state_object.attributes.get("friendly_name")),
-                    "start": {
-                    	"date": start.strftime('%Y-%m-%d'),
-                    },
-                    "end": {
-                    	"date": end.strftime('%Y-%m-%d'),
-                    },
-                    "allDay": True,
+                    "start": { "date": start.strftime('%Y-%m-%d') } if allDay else { "dateTime": start.isoformat() },
+                    "end": { "date": end.strftime('%Y-%m-%d') } if allDay else { "dateTime": end.isoformat() },
+                    "allDay": allDay,
                 }
                 events.append(event)
         return events
@@ -243,21 +253,33 @@ class EntitiesCalendarData:
         for entity in self._entities:
             state_object = self._hass.states.get(entity[CONF_ENTITY])
             start = _get_date(entity[CONF_START_TIME], state_object)
-            end = _get_date(entity[CONF_END_TIME], state_object)
+
+            if start and not entity[CONF_END_TIME]:
+                # If there is a start time and no end time options are defined
+                # also use the start time as the end time
+                end = start
+            else:
+                end = _get_date(entity[CONF_END_TIME], state_object)
+
+            if start is None:
+                continue
+
+            allDay = entity.get(CONF_ALL_DAY)
+            if allDay is None:
+                # If this entity is not specifically identified as all day
+                # determine based on time being midnight
+                allDay = start.time() == time(0)
+
             event = {
                 "uid": entity,
                 "summary": entity.get(CONF_NAME, state_object.attributes.get("friendly_name")),
-                "start": {
-                    	"date": start.strftime('%Y-%m-%d'),
-                },
-                "end": {
-                    "date": end.strftime('%Y-%m-%d'),
-                },
-                "allDay": True,
+                "start": { "date": start.strftime('%Y-%m-%d') } if allDay else { "dateTime": start.isoformat() },
+                "end": { "date": end.strftime('%Y-%m-%d') } if allDay else { "dateTime": end.isoformat() },
+                "allDay": allDay,
             }
             events.append(event)
 
-        events.sort(key=lambda x: x["start"]["date"])
+        events.sort(key=lambda x: x["start"]["date"] if x["allDay"] else x["start"]["dateTime"] )
 
         self.event = events[0]
         _LOGGER.debug("Updated %s", self._name)
