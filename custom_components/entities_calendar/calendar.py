@@ -117,6 +117,9 @@ def _parse_date(date) -> datetime:
     return dt.parse_datetime(date)
 
 def _get_date(options, state_object):
+    if state_object is None:
+        return None
+
     timestamp_in_state = options.get(CONF_TIMESTAMP_IN_STATE, None)
     timestamp_attribute = options.get(CONF_TIMESTAMP_ATTRIBUTE, None)
 
