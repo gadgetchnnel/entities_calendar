@@ -22,8 +22,7 @@ jobs:
     - name: Commit changelog and manifest files
       id: make-commit
       run: |
-        git add app_versions.gradle
-        git add CHANGELOG.md
+        git add custom_components/entities_calendar/manifest.json
         git commit --message "Prepare release ${{ github.event.inputs.versionName }}"
         echo "::set-output name=commit::$(git rev-parse HEAD)"
     - name: Push new branch
@@ -34,7 +33,7 @@ jobs:
        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
        head: release/v${{ github.event.inputs.versionName }}
        base: master
-       title: v${{ github.event.inputs.versionName }} into main
+       title: v${{ github.event.inputs.versionName }} into master
        reviewers: ${{ github.event.issue.user.login }}
        body: |
            Hi!
