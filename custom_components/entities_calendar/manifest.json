@@ -3,6 +3,8 @@
   "name": "Entities Calendar",
   "documentation": "https://github.com/gadgetchnnel/entities_calendar/",
   "issue_tracker": "https://github.com/gadgetchnnel/entities_calendar/issues",
-  "codeowners": ["@gadgetchnnel"],
-  "version": "0.0.7"
+  "codeowners": [
+    "@gadgetchnnel"
+  ],
+  "version": "0.0.8"
 }
