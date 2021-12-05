@@ -177,15 +177,6 @@ class EntitiesCalendarDevice(CalendarEventDevice):
         """Get all events in a specific time frame."""
         return await self.data.async_get_events(hass, start_date, end_date)
 
-    @property
-    def device_state_attributes(self):
-        """Return the device state attributes."""
-        if self.data.event is None:
-            # No tasks, we don't REALLY need to show anything.
-            return None
-
-        return {}
-
 
 class EntitiesCalendarData:
     """
