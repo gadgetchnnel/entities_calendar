@@ -60,8 +60,8 @@ This can be overridden by using the **start_time** and/or **end_time** options.
 |--------|-------------|
 | **entity (Required)** | The entity id of the entity |
 | **name (Optional)** | The name to use for the event (defaults to the friendly name of the entity) |
-| **start_time (Optional)** | A **time** object as defined below specifying how the start time is determined (defeaults to being determined based on device class) |
-| **end_time (Optional)** | A **time** object as defined below specifying how the end time is determined (defeaults to being determined based on device class) |
+| **start_time (Optional)** | A **time** object as defined below specifying how the start time is determined (defaults are determined based on device class) |
+| **end_time (Optional)** | A **time** object as defined below specifying how the end time is determined (defaults are determined based on device class) |
 
 #### **time** object
 
@@ -87,7 +87,7 @@ calendar:
       - name: Entities
         entities:
           - entity: sensor.attribute_test
-            name: Attribue Test
+            name: Attribute Test
             start_time:
               timestamp_attribute: start_time
             end_time:
