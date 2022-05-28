@@ -144,14 +144,6 @@ def _get_date(options, state_object):
             else:
                 return _parse_date(attribute_value)
 
-def _get_calendar_event(event):
-    """Return a CalendarEvent from an API event."""
-    return CalendarEvent(
-        summary=event["summary"],
-        start=get_date(event["start"]),
-        end=get_date(event["end"]),
-        location=event["location"],
-    )
 
 class EntitiesCalendarDevice(CalendarEntity):
     """A device for getting calendar events from entities."""
