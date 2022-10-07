@@ -4,7 +4,11 @@ import logging
 
 import voluptuous as vol
 
-from homeassistant.components.calendar import PLATFORM_SCHEMA, CalendarEventDevice
+from homeassistant.components.calendar import (
+    PLATFORM_SCHEMA, 
+    CalendarEntity,
+    CalendarEvent,
+)
 from homeassistant.const import (
     CONF_ID, 
     CONF_NAME,
@@ -140,7 +144,8 @@ def _get_date(options, state_object):
             else:
                 return _parse_date(attribute_value)
 
-class EntitiesCalendarDevice(CalendarEventDevice):
+
+class EntitiesCalendarDevice(CalendarEntity):
     """A device for getting calendar events from entities."""
 
     def __init__(
@@ -230,13 +235,11 @@ class EntitiesCalendarData:
                     # determine based on time being midnight
                     allDay = start.time() == time(0)
 
-                event = {
-                    "uid": entity,
-                    "summary": entity.get(CONF_NAME, state_object.attributes.get("friendly_name")),
-                    "start": { "date": start.strftime('%Y-%m-%d') } if allDay else { "dateTime": start.isoformat() },
-                    "end": { "date": end.strftime('%Y-%m-%d') } if allDay else { "dateTime": end.isoformat() },
-                    "allDay": allDay,
-                }
+                event = CalendarEvent(
+                    summary=entity.get(CONF_NAME, state_object.attributes.get("friendly_name")),
+                    start=start,
+                    end=end,
+                )
                 events.append(event)
         return events
 
@@ -264,16 +267,14 @@ class EntitiesCalendarData:
                 # determine based on time being midnight
                 allDay = start.time() == time(0)
 
-            event = {
-                "uid": entity,
-                "summary": entity.get(CONF_NAME, state_object.attributes.get("friendly_name")),
-                "start": { "date": start.strftime('%Y-%m-%d') } if allDay else { "dateTime": start.isoformat() },
-                "end": { "date": end.strftime('%Y-%m-%d') } if allDay else { "dateTime": end.isoformat() },
-                "allDay": allDay,
-            }
+            event = CalendarEvent(
+                summary=entity.get(CONF_NAME, state_object.attributes.get("friendly_name")),
+                start=start,
+                end=end,
+            )
             events.append(event)
 
-        events.sort(key=lambda x: x["start"]["date"] if x["allDay"] else x["start"]["dateTime"] )
+        events.sort(key=lambda x: x.start )
 
         next_event = None
         if events:

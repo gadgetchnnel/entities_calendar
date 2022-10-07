@@ -1,5 +1,5 @@
 {
 	"name": "Entities Calendar",
 	"content_in_root": false,
-	"domains": ["calendar"]
+	"homeassistant": "2022.5.0"
 }
