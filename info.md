@@ -17,7 +17,10 @@ calendar:
     calendars:
       name: My Entities
       entities:
-        - sensor.first_entity
-        - sensor.second_entity
-        - sensor.third_entity
+        - entity: sensor.first_entity
+          name: My First Entity
+        - entity: sensor.second_entity
+          name: My Second Entity
+        - entity: sensor.third_entity
+          name: My Third Entity
 ```
