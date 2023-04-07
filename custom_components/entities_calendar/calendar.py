@@ -112,13 +112,11 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
 def _parse_date(date) -> datetime:
     """Parse the due date dict into a datetime object."""
-    # Add time information to date only strings.
-    if len(date) == 10:
-        date += "T00:00:00"
-    # If there is no timezone provided, use UTC.
-    if not date.endswith("Z") and not "+" in date[11:] and not "-" in date[11:]:
-        date += "Z"
-    return dt.parse_datetime(date)
+    parsed_date = dt.parse_datetime(date)
+    if parsed_date is not None:
+        return parsed_date.astimezone()
+    else:
+        return None
 
 def _get_date(options, state_object):
     if state_object is None:
@@ -235,6 +233,14 @@ class EntitiesCalendarData:
                     # determine based on time being midnight
                     allDay = start.time() == time(0)
 
+                if allDay:
+                    start = start.date()
+                    end = end.date()
+                if start == end:
+                    if allDay or not isinstance(end, datetime):
+                        end += timedelta(days=1)
+                    else:
+                        end += timedelta(minutes=5)
                 event = CalendarEvent(
                     summary=entity.get(CONF_NAME, state_object.attributes.get("friendly_name")),
                     start=start,
@@ -266,6 +272,15 @@ class EntitiesCalendarData:
                 # If this entity is not specifically identified as all day
                 # determine based on time being midnight
                 allDay = start.time() == time(0)
+
+            if allDay:
+                start = start.date()
+                end = end.date()
+            if start == end:
+                if not isinstance(end, datetime):
+                    end += timedelta(days=1)
+                else:
+                    end += timedelta(minutes=5)
 
             event = CalendarEvent(
                 summary=entity.get(CONF_NAME, state_object.attributes.get("friendly_name")),
