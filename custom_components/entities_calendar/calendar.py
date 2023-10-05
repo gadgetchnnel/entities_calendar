@@ -160,6 +160,7 @@ class EntitiesCalendarDevice(CalendarEntity):
         )
         self._cal_data = {}
         self._name = calendar[CONF_NAME]
+        self._unique_id = calendar[CONF_NAME]
 
     @property
     def event(self):
@@ -170,6 +171,11 @@ class EntitiesCalendarDevice(CalendarEntity):
     def name(self):
         """Return the name of the entity."""
         return self._name
+    
+    @property
+    def unique_id(self):
+        """Return the unique id."""
+        return self._unique_id
 
     def update(self):
         """Update all Calendars."""
